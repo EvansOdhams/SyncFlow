@@ -180,9 +180,9 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ mt: 4, textAlign: 'center' }}>
+      <Box sx={{ textAlign: 'center', mt: 4 }}>
         <CircularProgress />
-      </Container>
+      </Box>
     );
   }
 
