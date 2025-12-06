@@ -59,5 +59,18 @@ export const syncAPI = {
   getSyncHistory: (limit) => api.get(`/sync/history?limit=${limit || 50}`)
 };
 
+// Orders API
+export const ordersAPI = {
+  getOrders: (params) => api.get('/orders', { params }),
+  getOrder: (id) => api.get(`/orders/${id}`),
+  getOrderStats: (params) => api.get('/orders/stats', { params })
+};
+
+// Products API
+export const productsAPI = {
+  getProducts: (params) => api.get('/products', { params }),
+  getInventoryStats: () => api.get('/products/stats')
+};
+
 export default api;
 

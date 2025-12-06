@@ -3,9 +3,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Dashboard from './pages/Dashboard';
+import Orders from './pages/Orders';
+import Inventory from './pages/Inventory';
+import SyncHistory from './pages/SyncHistory';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PrivateRoute from './components/PrivateRoute';
+import Navigation from './components/Navigation';
 import './App.css';
 
 const theme = createTheme({
@@ -30,7 +34,39 @@ function App() {
           path="/"
           element={
             <PrivateRoute>
-              <Dashboard />
+              <Navigation>
+                <Dashboard />
+              </Navigation>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <PrivateRoute>
+              <Navigation>
+                <Orders />
+              </Navigation>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/inventory"
+          element={
+            <PrivateRoute>
+              <Navigation>
+                <Inventory />
+              </Navigation>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/sync-history"
+          element={
+            <PrivateRoute>
+              <Navigation>
+                <SyncHistory />
+              </Navigation>
             </PrivateRoute>
           }
         />

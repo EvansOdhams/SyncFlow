@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Container,
   Typography,
   Box,
   Paper,
@@ -24,11 +23,9 @@ import {
 import {
   Add as AddIcon,
   Delete as DeleteIcon,
-  Sync as SyncIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon
+  Sync as SyncIcon
 } from '@mui/icons-material';
-import { platformsAPI, authAPI } from '../services/api';
+import { platformsAPI, authAPI, syncAPI, ordersAPI, productsAPI } from '../services/api';
 
 const Dashboard = () => {
   const [platforms, setPlatforms] = useState([]);
@@ -45,10 +42,28 @@ const Dashboard = () => {
     platformName: ''
   });
   const [user, setUser] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     loadData();
+    loadStats();
   }, []);
+
+  const loadStats = async () => {
+    try {
+      const [ordersStats, inventoryStats] = await Promise.all([
+        ordersAPI.getOrderStats(),
+        productsAPI.getInventoryStats()
+      ]);
+      setStats({
+        orders: ordersStats.data.data.stats,
+        inventory: inventoryStats.data.data.stats
+      });
+    } catch (err) {
+      console.error('Failed to load stats', err);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -134,6 +149,27 @@ const Dashboard = () => {
     }
   };
 
+  const handleSyncAll = async () => {
+    if (platforms.length < 2) {
+      setError('You need at least 2 connected platforms to sync');
+      return;
+    }
+
+    try {
+      setSyncing(true);
+      setError('');
+      await syncAPI.syncAll();
+      setError('');
+      alert('Sync completed successfully!');
+      loadData();
+      loadStats();
+    } catch (err) {
+      setError('Sync failed: ' + (err.response?.data?.error?.message || 'Unknown error'));
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const getPlatformIcon = (type) => {
     return type === 'shopify' ? '🛍️' : type === 'woocommerce' ? '🛒' : '📦';
   };
@@ -151,7 +187,7 @@ const Dashboard = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+    <Box>
       <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Box>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -257,7 +293,7 @@ const Dashboard = () => {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3 }}>
+          <Paper sx={{ p: 3, mb: 2 }}>
             <Typography variant="h6" gutterBottom>
               Quick Stats
             </Typography>
@@ -268,8 +304,31 @@ const Dashboard = () => {
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                 Subscription: {user?.subscriptionTier || 'Free'}
               </Typography>
+              {stats && (
+                <>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    Total Orders: {stats.orders?.total_orders || 0}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Total Products: {stats.inventory?.total_products || 0}
+                  </Typography>
+                </>
+              )}
             </Box>
           </Paper>
+          {platforms.length >= 2 && (
+            <Paper sx={{ p: 3 }}>
+              <Button
+                fullWidth
+                variant="contained"
+                startIcon={<SyncIcon />}
+                onClick={handleSyncAll}
+                disabled={syncing}
+              >
+                {syncing ? 'Syncing...' : 'Sync All Platforms'}
+              </Button>
+            </Paper>
+          )}
         </Grid>
       </Grid>
 
@@ -360,7 +419,7 @@ const Dashboard = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 };
 
