@@ -1,32 +1,367 @@
-import React from 'react';
-import { Container, Typography, Box, Paper } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Typography,
+  Box,
+  Paper,
+  Grid,
+  Card,
+  CardContent,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  TextField,
+  DialogActions,
+  Alert,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  Chip,
+  IconButton
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Sync as SyncIcon,
+  CheckCircle as CheckCircleIcon,
+  Error as ErrorIcon
+} from '@mui/icons-material';
+import { platformsAPI, authAPI } from '../services/api';
 
 const Dashboard = () => {
+  const [platforms, setPlatforms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [dialogType, setDialogType] = useState('woocommerce');
+  const [formData, setFormData] = useState({
+    storeUrl: '',
+    consumerKey: '',
+    consumerSecret: '',
+    shopDomain: '',
+    accessToken: '',
+    platformName: ''
+  });
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [platformsRes, userRes] = await Promise.all([
+        platformsAPI.getPlatforms(),
+        authAPI.getCurrentUser()
+      ]);
+      setPlatforms(platformsRes.data.data.platforms);
+      setUser(userRes.data.data.user);
+    } catch (err) {
+      setError('Failed to load data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenDialog = (type) => {
+    setDialogType(type);
+    setOpenDialog(true);
+    setFormData({
+      storeUrl: '',
+      consumerKey: '',
+      consumerSecret: '',
+      shopDomain: '',
+      accessToken: '',
+      platformName: ''
+    });
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleConnect = async () => {
+    try {
+      setError('');
+      let response;
+      
+      if (dialogType === 'woocommerce') {
+        response = await platformsAPI.connectWooCommerce({
+          storeUrl: formData.storeUrl,
+          consumerKey: formData.consumerKey,
+          consumerSecret: formData.consumerSecret,
+          platformName: formData.platformName
+        });
+      } else {
+        response = await platformsAPI.connectShopify({
+          shopDomain: formData.shopDomain,
+          accessToken: formData.accessToken,
+          platformName: formData.platformName
+        });
+      }
+
+      handleCloseDialog();
+      loadData();
+    } catch (err) {
+      setError(
+        err.response?.data?.error?.message ||
+        'Failed to connect platform'
+      );
+    }
+  };
+
+  const handleDisconnect = async (id) => {
+    if (!window.confirm('Are you sure you want to disconnect this platform?')) {
+      return;
+    }
+
+    try {
+      await platformsAPI.disconnectPlatform(id);
+      loadData();
+    } catch (err) {
+      setError('Failed to disconnect platform');
+    }
+  };
+
+  const getPlatformIcon = (type) => {
+    return type === 'shopify' ? '🛍️' : type === 'woocommerce' ? '🛒' : '📦';
+  };
+
+  const getStatusColor = (status) => {
+    return status === 'active' ? 'success' : status === 'error' ? 'error' : 'default';
+  };
+
+  if (loading) {
+    return (
+      <Container maxWidth="lg" sx={{ mt: 4, textAlign: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          SyncFlow
-        </Typography>
-        <Typography variant="h5" color="text.secondary">
-          Multi-Channel Inventory & Order Sync Platform
-        </Typography>
+      <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom>
+            SyncFlow Dashboard
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Welcome, {user?.firstName || user?.email}!
+          </Typography>
+        </Box>
+        <Box>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog('woocommerce')}
+            sx={{ mr: 1 }}
+          >
+            Connect WooCommerce
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog('shopify')}
+          >
+            Connect Shopify
+          </Button>
+        </Box>
       </Box>
 
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Welcome to SyncFlow
-        </Typography>
-        <Typography variant="body1" paragraph>
-          This is the dashboard. Implementation is in progress.
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          Status: Phase 0 - Setup & Planning
-        </Typography>
-      </Paper>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>
+          {error}
+        </Alert>
+      )}
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Connected Platforms ({platforms.length})
+            </Typography>
+            {platforms.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body1" color="text.secondary" gutterBottom>
+                  No platforms connected yet
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Connect your first platform to get started
+                </Typography>
+              </Box>
+            ) : (
+              <List>
+                {platforms.map((platform) => (
+                  <ListItem
+                    key={platform.id}
+                    sx={{
+                      border: '1px solid #e0e0e0',
+                      borderRadius: 1,
+                      mb: 1
+                    }}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleDisconnect(platform.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <span style={{ fontSize: '24px' }}>
+                            {getPlatformIcon(platform.platform_type)}
+                          </span>
+                          <Typography variant="subtitle1">
+                            {platform.platform_name || platform.platform_type}
+                          </Typography>
+                          <Chip
+                            label={platform.platform_type}
+                            size="small"
+                            sx={{ ml: 1 }}
+                          />
+                          <Chip
+                            label={platform.status}
+                            size="small"
+                            color={getStatusColor(platform.status)}
+                            sx={{ ml: 1 }}
+                          />
+                        </Box>
+                      }
+                      secondary={
+                        platform.last_sync_at
+                          ? `Last synced: ${new Date(platform.last_sync_at).toLocaleString()}`
+                          : 'Never synced'
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            )}
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Quick Stats
+            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                Active Platforms: {platforms.filter(p => p.status === 'active').length}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                Subscription: {user?.subscriptionTier || 'Free'}
+              </Typography>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Connect Platform Dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Connect {dialogType === 'woocommerce' ? 'WooCommerce' : 'Shopify'}
+        </DialogTitle>
+        <DialogContent>
+          {dialogType === 'woocommerce' ? (
+            <>
+              <TextField
+                fullWidth
+                label="Store URL"
+                name="storeUrl"
+                value={formData.storeUrl}
+                onChange={handleChange}
+                margin="normal"
+                placeholder="https://yourstore.com"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Consumer Key"
+                name="consumerKey"
+                value={formData.consumerKey}
+                onChange={handleChange}
+                margin="normal"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Consumer Secret"
+                name="consumerSecret"
+                value={formData.consumerSecret}
+                onChange={handleChange}
+                margin="normal"
+                type="password"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Platform Name (Optional)"
+                name="platformName"
+                value={formData.platformName}
+                onChange={handleChange}
+                margin="normal"
+              />
+            </>
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                label="Shop Domain"
+                name="shopDomain"
+                value={formData.shopDomain}
+                onChange={handleChange}
+                margin="normal"
+                placeholder="your-shop"
+                helperText="Your shop name (without .myshopify.com)"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Access Token"
+                name="accessToken"
+                value={formData.accessToken}
+                onChange={handleChange}
+                margin="normal"
+                type="password"
+                required
+              />
+              <TextField
+                fullWidth
+                label="Platform Name (Optional)"
+                name="platformName"
+                value={formData.platformName}
+                onChange={handleChange}
+                margin="normal"
+              />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={handleConnect} variant="contained">
+            Connect
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
 
 export default Dashboard;
-

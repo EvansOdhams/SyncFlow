@@ -45,9 +45,13 @@ app.get('/health', (req, res) => {
 // API routes
 import authRoutes from './routes/authRoutes.js';
 import platformRoutes from './routes/platformRoutes.js';
+import syncRoutes from './routes/syncRoutes.js';
+import webhookRoutes from './routes/webhookRoutes.js';
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/platforms', platformRoutes);
+app.use('/api/v1/sync', syncRoutes);
+app.use('/api/v1/webhooks', webhookRoutes);
 
 app.get('/api/v1', (req, res) => {
   res.json({
@@ -66,6 +70,15 @@ app.get('/api/v1', (req, res) => {
         connectWooCommerce: 'POST /api/v1/platforms/woocommerce',
         connectShopify: 'POST /api/v1/platforms/shopify',
         disconnect: 'DELETE /api/v1/platforms/:id'
+      },
+      sync: {
+        syncPlatforms: 'POST /api/v1/sync/platforms',
+        syncAll: 'POST /api/v1/sync/all',
+        history: 'GET /api/v1/sync/history'
+      },
+      webhooks: {
+        shopify: 'POST /api/v1/webhooks/shopify',
+        woocommerce: 'POST /api/v1/webhooks/woocommerce'
       }
     }
   });

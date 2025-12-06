@@ -52,5 +52,12 @@ export const platformsAPI = {
   disconnectPlatform: (id) => api.delete(`/platforms/${id}`)
 };
 
+// Sync API
+export const syncAPI = {
+  syncPlatforms: (data) => api.post('/sync/platforms', data),
+  syncAll: () => api.post('/sync/all'),
+  getSyncHistory: (limit) => api.get(`/sync/history?limit=${limit || 50}`)
+};
+
 export default api;
 
