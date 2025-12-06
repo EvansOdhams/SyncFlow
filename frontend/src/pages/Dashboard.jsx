@@ -388,7 +388,7 @@ const Dashboard = () => {
                 onChange={handleChange}
                 margin="normal"
                 placeholder="your-shop"
-                helperText="Your shop name (without .myshopify.com)"
+                helperText="Your shop name (without .myshopify.com). See SHOPIFY_SETUP_GUIDE.md for instructions"
                 required
               />
               <TextField
@@ -399,6 +399,7 @@ const Dashboard = () => {
                 onChange={handleChange}
                 margin="normal"
                 type="password"
+                helperText="Get this from Shopify Admin > Settings > Apps > Develop apps > Your App > Admin API access token"
                 required
               />
               <TextField
