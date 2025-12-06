@@ -12,11 +12,14 @@ import {
 } from '@mui/material';
 import { authAPI } from '../services/api';
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,10 +35,24 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    // Validate password strength
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await authAPI.login(formData);
+      const { confirmPassword, ...registerData } = formData;
+      const response = await authAPI.register(registerData);
       const { token, user } = response.data.data;
 
       // Store token and user
@@ -47,7 +64,7 @@ const Login = () => {
     } catch (err) {
       setError(
         err.response?.data?.error?.message ||
-        'Login failed. Please check your credentials.'
+        'Registration failed. Please try again.'
       );
     } finally {
       setLoading(false);
@@ -62,7 +79,7 @@ const Login = () => {
             SyncFlow
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            Sign in to your account
+            Create your account
           </Typography>
         </Box>
 
@@ -73,6 +90,22 @@ const Login = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="First Name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={handleChange}
+            margin="normal"
+          />
+          <TextField
+            fullWidth
+            label="Last Name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={handleChange}
+            margin="normal"
+          />
           <TextField
             fullWidth
             label="Email"
@@ -93,7 +126,19 @@ const Login = () => {
             onChange={handleChange}
             required
             margin="normal"
-            autoComplete="current-password"
+            autoComplete="new-password"
+            helperText="Must be at least 8 characters with uppercase, lowercase, and number"
+          />
+          <TextField
+            fullWidth
+            label="Confirm Password"
+            name="confirmPassword"
+            type="password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+            margin="normal"
+            autoComplete="new-password"
           />
           <Button
             type="submit"
@@ -102,15 +147,15 @@ const Login = () => {
             sx={{ mt: 3, mb: 2 }}
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : 'Sign In'}
+            {loading ? <CircularProgress size={24} /> : 'Sign Up'}
           </Button>
         </form>
 
         <Box sx={{ textAlign: 'center', mt: 2 }}>
           <Typography variant="body2">
-            Don't have an account?{' '}
-            <Link to="/register" style={{ textDecoration: 'none' }}>
-              Sign up
+            Already have an account?{' '}
+            <Link to="/login" style={{ textDecoration: 'none' }}>
+              Sign in
             </Link>
           </Typography>
         </Box>
@@ -119,4 +164,5 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
+

@@ -42,14 +42,31 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes (will be added in Phase 1)
+// API routes
+import authRoutes from './routes/authRoutes.js';
+import platformRoutes from './routes/platformRoutes.js';
+
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/platforms', platformRoutes);
+
 app.get('/api/v1', (req, res) => {
   res.json({
     message: 'SyncFlow API v1',
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      api: '/api/v1'
+      auth: {
+        register: 'POST /api/v1/auth/register',
+        login: 'POST /api/v1/auth/login',
+        me: 'GET /api/v1/auth/me'
+      },
+      platforms: {
+        list: 'GET /api/v1/platforms',
+        get: 'GET /api/v1/platforms/:id',
+        connectWooCommerce: 'POST /api/v1/platforms/woocommerce',
+        connectShopify: 'POST /api/v1/platforms/shopify',
+        disconnect: 'DELETE /api/v1/platforms/:id'
+      }
     }
   });
 });
