@@ -106,6 +106,14 @@ export const connectShopify = async (req, res, next) => {
 
     let { shopDomain, accessToken, platformName } = req.body;
 
+    // Validate required fields
+    if (!shopDomain || !accessToken) {
+      return res.status(400).json({
+        success: false,
+        error: { message: 'Shop domain and access token are required' }
+      });
+    }
+
     // Normalize shop domain - extract just the shop name
     // Handle formats like: "silkorc", "silkorc.myshopify.com", "https://silkorc.myshopify.com"
     shopDomain = shopDomain.trim();
@@ -115,6 +123,12 @@ export const connectShopify = async (req, res, next) => {
       shopDomain = shopDomain.replace(/\.myshopify\.com.*$/, ''); // Remove .myshopify.com and anything after
       shopDomain = shopDomain.split('/')[0]; // Take only the first part if there's a path
     }
+
+    logger.info('Attempting Shopify connection', {
+      shopDomain,
+      accessTokenLength: accessToken?.length,
+      hasPlatformName: !!platformName
+    });
 
     // Test connection
     const shopifyService = new ShopifyService(shopDomain, accessToken);
