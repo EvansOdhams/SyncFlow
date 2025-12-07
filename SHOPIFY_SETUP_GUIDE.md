@@ -1,11 +1,20 @@
 # Shopify Setup Guide - Getting Your Access Token
 
-## Quick Steps to Connect Your Shopify Store
+## 🎯 Two Methods to Get Your Access Token
+
+**Method 1: Custom App (Easiest - Recommended for MVP)** ⭐  
+**Method 2: Partner Dashboard App (For Development)**
+
+---
+
+## Method 1: Custom App (EASIEST - Start Here!)
+
+This is the simplest method and works perfectly for connecting your existing store.
 
 ### Step 1: Access Your Shopify Admin
 
-1. Log in to your Shopify admin panel: https://admin.shopify.com
-2. Select your store
+1. Go to: https://admin.shopify.com
+2. Log in and select your store
 
 ### Step 2: Create a Custom App
 
@@ -73,15 +82,75 @@ Go to SyncFlow dashboard and:
 4. Optionally add a platform name (e.g., "My Shopify Store")
 5. Click **"Connect"**
 
-## Alternative: Using Shopify Partner Account (For Development)
+## Method 2: Using Shopify Partner Dashboard (What You're Looking At)
 
-If you want to create a more permanent integration:
+If you're already in the Partner Dashboard (dev dashboard), here's how to use it:
 
-1. **Create a Shopify Partner account**: https://partners.shopify.com
-2. **Create a new app** in your partner dashboard
-3. **Set up OAuth 2.0** (more complex, but better for production)
+### Step 1: Create/Select Your App
 
-For the MVP, the custom app method above is simpler and works perfectly!
+1. **Go to Partner Dashboard**: https://partners.shopify.com
+2. **Click on "Apps"** in the left sidebar
+3. **Click "Create app"** or select an existing app
+4. **Select "Custom app"** (not "Public app" for now)
+
+### Step 2: Get Your Credentials
+
+From the Settings page you're looking at:
+
+1. **Client ID**: Copy the "Client ID" (you can see it: `ec30e05dd7e7e590ea68603fac999125`)
+2. **Client Secret**: 
+   - Click the **eye icon** to reveal the secret
+   - Copy the secret value
+   - Or click **"Copy"** button
+
+### Step 3: Install App on Your Store
+
+1. **Go to "Overview"** tab in your app
+2. Click **"Install app"** or **"Test on development store"**
+3. Select your store from the list
+4. Click **"Install"**
+
+### Step 4: Get Admin API Access Token
+
+**Option A: From Store Admin (After Installation)**
+1. Go to your store admin: https://admin.shopify.com/store/YOUR_STORE
+2. Go to **Settings → Apps and sales channels**
+3. Find your app and click on it
+4. Look for **"Admin API access token"**
+5. Click **"Reveal token once"** and copy it
+
+**Option B: Generate Token via API (Advanced)**
+If you have Client ID and Secret, you can generate a token, but this requires OAuth flow implementation.
+
+### ⚠️ Important Note for Partner Dashboard Method:
+
+The **Client ID** and **Client Secret** you see are for OAuth authentication, not direct access tokens. For SyncFlow MVP, you need the **Admin API access token** which you get after installing the app on your store.
+
+**For MVP, I recommend Method 1 (Custom App) as it's simpler!**
+
+---
+
+## 🚨 Can't Find Access Token? Try This:
+
+### If you're in Partner Dashboard:
+1. Make sure you've **installed the app** on your store first
+2. Go to your **store admin** (not partner dashboard)
+3. Settings → Apps → Find your app → Get access token
+
+### If you're in Store Admin:
+1. Make sure you clicked **"Develop apps"** (not just "Apps")
+2. Make sure you **installed** the app after creating it
+3. The token appears only after installation
+
+### Still Stuck? Use This Alternative:
+
+**Create a new custom app directly in your store:**
+1. Go to: `https://admin.shopify.com/store/YOUR_STORE/settings/apps`
+2. Scroll down and click **"Develop apps"**
+3. Click **"Create an app"**
+4. Follow Method 1 steps above
+
+This bypasses the Partner Dashboard entirely and works directly with your store.
 
 ## Troubleshooting
 
