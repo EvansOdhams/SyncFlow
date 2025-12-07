@@ -387,8 +387,8 @@ const Dashboard = () => {
                 value={formData.shopDomain}
                 onChange={handleChange}
                 margin="normal"
-                placeholder="your-shop"
-                helperText="Your shop name (without .myshopify.com). See SHOPIFY_SETUP_GUIDE.md for instructions"
+                placeholder="silkorc"
+                helperText="Enter just your shop name (e.g., 'silkorc'). Full URLs are automatically handled."
                 required
               />
               <TextField

@@ -23,7 +23,10 @@ export class ShopifyService {
     } catch (error) {
       logger.error('Shopify getProducts error', {
         error: error.message,
-        shopDomain: this.shopDomain
+        shopDomain: this.shopDomain,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data
       });
       throw error;
     }

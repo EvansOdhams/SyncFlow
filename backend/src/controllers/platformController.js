@@ -104,16 +104,41 @@ export const connectShopify = async (req, res, next) => {
       });
     }
 
-    const { shopDomain, accessToken, platformName } = req.body;
+    let { shopDomain, accessToken, platformName } = req.body;
+
+    // Normalize shop domain - extract just the shop name
+    // Handle formats like: "silkorc", "silkorc.myshopify.com", "https://silkorc.myshopify.com"
+    shopDomain = shopDomain.trim();
+    if (shopDomain.includes('.')) {
+      // Extract shop name from URL or domain
+      shopDomain = shopDomain.replace(/^https?:\/\//, ''); // Remove http:// or https://
+      shopDomain = shopDomain.replace(/\.myshopify\.com.*$/, ''); // Remove .myshopify.com and anything after
+      shopDomain = shopDomain.split('/')[0]; // Take only the first part if there's a path
+    }
 
     // Test connection
     const shopifyService = new ShopifyService(shopDomain, accessToken);
     try {
       await shopifyService.getProducts(1); // Test with minimal request
     } catch (error) {
+      logger.error('Shopify connection test failed', {
+        error: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      let errorMessage = 'Failed to connect to Shopify store. ';
+      if (error.response?.status === 401) {
+        errorMessage += 'Invalid access token. Please check your token.';
+      } else if (error.response?.status === 404) {
+        errorMessage += 'Shop not found. Please check your shop domain.';
+      } else {
+        errorMessage += `Error: ${error.response?.data?.errors || error.message}`;
+      }
+      
       return res.status(400).json({
         success: false,
-        error: { message: 'Failed to connect to Shopify store. Please check your credentials.' }
+        error: { message: errorMessage }
       });
     }
 
