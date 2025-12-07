@@ -120,11 +120,12 @@ const Dashboard = () => {
         });
       } else {
         // Log the data being sent for debugging
-        console.log('Connecting Shopify with:', {
+        console.log('Connecting Shopify with:', JSON.stringify({
           shopDomain: formData.shopDomain,
           accessTokenLength: formData.accessToken?.length,
+          accessTokenPrefix: formData.accessToken?.substring(0, 10) + '...',
           hasPlatformName: !!formData.platformName
-        });
+        }, null, 2));
         
         response = await platformsAPI.connectShopify({
           shopDomain: formData.shopDomain,
