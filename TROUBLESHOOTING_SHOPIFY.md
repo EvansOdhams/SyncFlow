@@ -39,10 +39,9 @@ If you've revoked the app or the token was regenerated, you need a new one.
 Make sure you copied the ENTIRE token. Shopify tokens are usually 32-40 characters long (after the `shpat_` prefix).
 
 **Check:**
-- Your token should start with `shpat_` followed by 32-40 characters
-- Example format: `shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+- Your token should be: `shpat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx`
+- That's 38 characters total
 - Make sure there are no spaces before or after
-- Copy the entire token from Shopify admin
 
 ### 4. App Not Installed
 
