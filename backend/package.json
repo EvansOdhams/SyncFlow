@@ -10,7 +10,8 @@
     "test": "jest",
     "migrate": "node src/database/migrate.js",
     "seed": "node src/database/seed.js",
-    "check:postgres": "node scripts/check-postgres.js"
+    "check:postgres": "node scripts/check-postgres.js",
+    "postinstall": "echo 'Dependencies installed'"
   },
   "keywords": [
     "e-commerce",

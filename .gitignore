@@ -16,6 +16,7 @@ __pycache__/
 .env.production
 .env.test
 *.env
+!.env.example
 
 # IDE
 .vscode/
@@ -75,3 +76,11 @@ cloudformation-output.json
 *.zip
 !package.zip
 
+# Railway
+.railway/
+
+# Vercel
+.vercel
+
+# Fly.io
+.fly/
