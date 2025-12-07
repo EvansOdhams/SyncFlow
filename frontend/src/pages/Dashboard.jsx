@@ -112,12 +112,17 @@ const Dashboard = () => {
       let response;
       
       if (dialogType === 'woocommerce') {
-        response = await platformsAPI.connectWooCommerce({
+        // Build request payload - only include platformName if it has a value
+        const wcPayload = {
           storeUrl: formData.storeUrl,
           consumerKey: formData.consumerKey,
-          consumerSecret: formData.consumerSecret,
-          platformName: formData.platformName
-        });
+          consumerSecret: formData.consumerSecret
+        };
+        if (formData.platformName && formData.platformName.trim()) {
+          wcPayload.platformName = formData.platformName.trim();
+        }
+        
+        response = await platformsAPI.connectWooCommerce(wcPayload);
       } else {
         // Log the data being sent for debugging
         console.log('Connecting Shopify with:', JSON.stringify({
@@ -127,11 +132,16 @@ const Dashboard = () => {
           hasPlatformName: !!formData.platformName
         }, null, 2));
         
-        response = await platformsAPI.connectShopify({
+        // Build request payload - only include platformName if it has a value
+        const shopifyPayload = {
           shopDomain: formData.shopDomain,
-          accessToken: formData.accessToken,
-          platformName: formData.platformName
-        });
+          accessToken: formData.accessToken
+        };
+        if (formData.platformName && formData.platformName.trim()) {
+          shopifyPayload.platformName = formData.platformName.trim();
+        }
+        
+        response = await platformsAPI.connectShopify(shopifyPayload);
       }
 
       handleCloseDialog();

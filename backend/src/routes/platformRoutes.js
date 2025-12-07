@@ -19,13 +19,21 @@ const wooCommerceValidation = [
   body('storeUrl').isURL().withMessage('Valid store URL is required'),
   body('consumerKey').notEmpty().withMessage('Consumer key is required'),
   body('consumerSecret').notEmpty().withMessage('Consumer secret is required'),
-  body('platformName').optional().trim().isLength({ min: 1, max: 255 })
+  body('platformName')
+    .optional({ checkFalsy: true, nullable: true })
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Platform name must be between 1 and 255 characters if provided')
 ];
 
 const shopifyValidation = [
   body('shopDomain').notEmpty().withMessage('Shop domain is required'),
   body('accessToken').notEmpty().withMessage('Access token is required'),
-  body('platformName').optional().trim().isLength({ min: 1, max: 255 })
+  body('platformName')
+    .optional({ checkFalsy: true, nullable: true })
+    .trim()
+    .isLength({ min: 1, max: 255 })
+    .withMessage('Platform name must be between 1 and 255 characters if provided')
 ];
 
 // Routes
