@@ -11,6 +11,7 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 dotenv.config();
 
 const app = express();
+// Render and other platforms provide PORT, fallback to 3001 for local
 const PORT = process.env.PORT || 3001;
 
 // Security middleware
