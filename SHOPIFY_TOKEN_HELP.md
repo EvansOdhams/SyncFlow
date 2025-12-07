@@ -11,8 +11,9 @@ In the SyncFlow "Connect Shopify" form:
 
 1. **Shop Domain:** `silkorc`
 2. **Access Token:** `shpat_your_token_here` 
-   - ⚠️ Make sure you copy the ENTIRE token
+   - ⚠️ Make sure you copy the ENTIRE token from your Shopify admin
    - ⚠️ It should start with `shpat_` (not `shpss_`)
+   - ⚠️ Replace `your_token_here` with your actual token
 3. **Platform Name:** (optional) Leave empty or enter a name
 
 ### How to Get the Admin API Access Token
