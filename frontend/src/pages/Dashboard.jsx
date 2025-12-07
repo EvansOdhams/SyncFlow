@@ -119,6 +119,13 @@ const Dashboard = () => {
           platformName: formData.platformName
         });
       } else {
+        // Log the data being sent for debugging
+        console.log('Connecting Shopify with:', {
+          shopDomain: formData.shopDomain,
+          accessTokenLength: formData.accessToken?.length,
+          hasPlatformName: !!formData.platformName
+        });
+        
         response = await platformsAPI.connectShopify({
           shopDomain: formData.shopDomain,
           accessToken: formData.accessToken,
@@ -129,10 +136,21 @@ const Dashboard = () => {
       handleCloseDialog();
       loadData();
     } catch (err) {
-      setError(
-        err.response?.data?.error?.message ||
-        'Failed to connect platform'
-      );
+      console.error('Connection error:', err);
+      console.error('Error response:', err.response?.data);
+      
+      // Handle validation errors
+      if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+        const errorMessages = err.response.data.errors.map(e => e.msg || e.message).join(', ');
+        setError(errorMessages);
+      } else {
+        setError(
+          err.response?.data?.error?.message ||
+          err.response?.data?.message ||
+          err.message ||
+          'Failed to connect platform'
+        );
+      }
     }
   };
 
