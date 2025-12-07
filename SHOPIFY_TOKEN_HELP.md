@@ -32,7 +32,7 @@ If you need to get it again:
 
 ### Token Types Explained
 
-- **API Key** (`19a223887556372ec121a94e7fa1a0e9`) - Used for OAuth
+- **API Key** (`your_api_key_here`) - Used for OAuth
 - **API Secret Key** (`shpss_...`) - Used for OAuth signature verification
 - **Admin API Access Token** (`shpat_...`) - ✅ **This is what you need!**
 
