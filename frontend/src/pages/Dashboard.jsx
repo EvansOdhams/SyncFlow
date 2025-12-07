@@ -138,17 +138,20 @@ const Dashboard = () => {
     } catch (err) {
       console.error('Connection error:', err);
       console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      console.error('Full error:', JSON.stringify(err.response?.data, null, 2));
       
       // Handle validation errors
       if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
-        const errorMessages = err.response.data.errors.map(e => e.msg || e.message).join(', ');
+        const errorMessages = err.response.data.errors.map(e => e.msg || e.message || JSON.stringify(e)).join(', ');
         setError(errorMessages);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error.message || JSON.stringify(err.response.data.error));
       } else {
         setError(
-          err.response?.data?.error?.message ||
           err.response?.data?.message ||
           err.message ||
-          'Failed to connect platform'
+          'Failed to connect platform. Check console for details.'
         );
       }
     }

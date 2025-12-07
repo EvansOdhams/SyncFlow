@@ -21,14 +21,21 @@ export class ShopifyService {
       });
       return response.data.products;
     } catch (error) {
-      logger.error('Shopify getProducts error', {
-        error: error.message,
+      const errorDetails = {
+        message: error.message,
         shopDomain: this.shopDomain,
         status: error.response?.status,
         statusText: error.response?.statusText,
-        data: error.response?.data
-      });
-      throw error;
+        data: error.response?.data,
+        url: `${this.baseURL}/products.json`
+      };
+      logger.error('Shopify getProducts error', errorDetails);
+      
+      // Create a more descriptive error
+      const enhancedError = new Error(error.message);
+      enhancedError.response = error.response;
+      enhancedError.shopDomain = this.shopDomain;
+      throw enhancedError;
     }
   }
 
