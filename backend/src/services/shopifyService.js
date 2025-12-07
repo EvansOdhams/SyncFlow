@@ -15,7 +15,14 @@ export class ShopifyService {
   // Fetch all products
   async getProducts(limit = 250) {
     try {
-      const response = await axios.get(`${this.baseURL}/products.json`, {
+      const url = `${this.baseURL}/products.json`;
+      logger.info('Making Shopify API request', {
+        url,
+        shopDomain: this.shopDomain,
+        tokenPrefix: this.accessToken?.substring(0, 10) + '...'
+      });
+      
+      const response = await axios.get(url, {
         headers: this.headers,
         params: { limit }
       });
@@ -27,9 +34,20 @@ export class ShopifyService {
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
-        url: `${this.baseURL}/products.json`
+        url: `${this.baseURL}/products.json`,
+        headers: {
+          'X-Shopify-Access-Token': this.accessToken?.substring(0, 10) + '...' + ' (hidden)'
+        }
       };
       logger.error('Shopify getProducts error', errorDetails);
+      
+      // Log the full Shopify error response
+      if (error.response?.data) {
+        logger.error('Shopify API error details', {
+          errors: error.response.data.errors,
+          error: error.response.data.error
+        });
+      }
       
       // Create a more descriptive error
       const enhancedError = new Error(error.message);

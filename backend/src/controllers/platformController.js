@@ -143,11 +143,19 @@ export const connectShopify = async (req, res, next) => {
       
       let errorMessage = 'Failed to connect to Shopify store. ';
       if (error.response?.status === 401) {
-        errorMessage += 'Invalid access token. Please check your token.';
+        const shopifyError = error.response?.data?.errors || error.response?.data?.error;
+        if (shopifyError) {
+          errorMessage += `Invalid access token: ${JSON.stringify(shopifyError)}. Please verify your token has the correct permissions.`;
+        } else {
+          errorMessage += 'Invalid access token. Please check your token and ensure it has the required permissions (read_products, read_inventory, read_orders).';
+        }
       } else if (error.response?.status === 404) {
         errorMessage += 'Shop not found. Please check your shop domain.';
+      } else if (error.response?.status === 403) {
+        errorMessage += 'Access forbidden. The token may not have the required permissions.';
       } else {
-        errorMessage += `Error: ${error.response?.data?.errors || error.message}`;
+        const shopifyError = error.response?.data?.errors || error.response?.data?.error || error.message;
+        errorMessage += `Error: ${JSON.stringify(shopifyError)}`;
       }
       
       return res.status(400).json({
